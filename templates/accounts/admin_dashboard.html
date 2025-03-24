@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2>Админ-Панель</h2>
+        
+        <!-- Статистическая информация -->
+        <div class="row">
+            <!-- Карточка с количеством пользователей -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Количество пользователей</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ user_count }} пользователей</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка с количеством заказов -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Количество заказов</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ order_count }} заказов</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Карточка с общей выручкой -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Общая выручка</h4>
+                    </div>
+                    <div class="card-body">
+                        <p>{{ total_revenue }} ₽</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ссылки для управления данными -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Управление пользователями</h4>
+                    </div>
+                    <div class="card-body">
+                      <p><a href="{% url 'admin_panel:dashboard' %}" class="btn btn-primary">Перейти к панели управления</a></p>
+                    </div>
+                </div>
+            </div>           
+        </div>
+    </div>
+{% endblock %}

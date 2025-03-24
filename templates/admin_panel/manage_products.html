@@ -1,0 +1,29 @@
+# Шаблон admin_panel/manage_products.html
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Управление товарами</h2>
+<h3>Цветы</h3>
+<table>
+    <tr>
+        <th>Название</th>
+        <th>Цена</th>
+        <th>В наличии</th>
+    </tr>
+    {% for flower in flowers %}
+    <tr>
+        <td>{{ flower.name }}</td>
+        <td>{{ flower.price }}</td>
+        <td>{{ flower.in_stock|yesno:"Да,Нет" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Редактировать товар</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% endblock %}
+

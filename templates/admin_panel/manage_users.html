@@ -1,0 +1,29 @@
+# Шаблон admin_panel/manage_users.html
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Управление пользователями</h2>
+<table>
+    <tr>
+        <th>Имя пользователя</th>
+        <th>Email</th>
+        <th>Роль</th>
+        <th>Активен</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.get_role_display }}</td>
+        <td>{{ user.is_active|yesno:"Да,Нет" }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Редактировать пользователя</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% endblock %}

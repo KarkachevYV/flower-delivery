@@ -1,0 +1,30 @@
+# Шаблон admin_panel/manage_orders.html
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Управление заказами</h2>
+<table>
+    <tr>
+        <th>ID Заказа</th>
+        <th>Пользователь</th>
+        <th>Дата создания</th>
+        <th>Статус</th>
+    </tr>
+    {% for order in orders %}
+    <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.user.username }}</td>
+        <td>{{ order.created_at }}</td>
+        <td>{{ order.status }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<h3>Редактировать заказ</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>
+{% endblock %}
+

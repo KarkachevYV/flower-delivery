@@ -1,0 +1,17 @@
+# templates/accounts/profile.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>Профиль пользователя</h2>
+<ul>
+    <li>Имя: {{ user.first_name }} {{ user.last_name }}</li>
+    <li>Email: {{ user.email }}</li>
+    <li>Телефон: {{ user.phone_number }}</li>
+    <li>Адрес: {{ user.country }}, {{ user.region }}, {{ user.city }}, {{ user.street }}, {{ user.house_number }}</li>
+</ul>
+<form method="post" action="{% url 'accounts:logout' %}" style="display: inline;">
+  {% csrf_token %}
+  <button type="submit" style="background: none; border: none; padding: 0; font: inherit; color: blue; cursor: pointer;">
+      Выход
+  </button>
+</form>
+{% endblock %}

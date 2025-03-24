@@ -1,0 +1,12 @@
+# Шаблон order_history.html
+{% extends 'base.html' %}
+{% block content %}
+<h2>История заказов</h2>
+<ul>
+    {% for order in orders %}
+        <li>Заказ №{{ order.id }} — Статус: {{ order.status }}</li>
+    {% empty %}
+    <p>У вас нет заказов.</p>
+    {% endfor %}
+</ul>
+{% endblock %}

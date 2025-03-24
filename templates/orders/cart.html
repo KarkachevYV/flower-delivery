@@ -1,0 +1,22 @@
+# templates/orders/cart.html
+{% extends 'base.html' %}
+{% load cart_filters %}
+
+{% block content %}
+<h2>Корзина</h2>
+{% if flowers %}
+<ul>
+    {% for flower in flowers %}
+        <li>{{ flower.name }} - {{ flower.price }} ₽</li>
+        <p>Количество: {{ request.session.cart|get_item:flower.id }}</p>
+    {% endfor %}
+</ul>
+<form method='post' action='{% url 'orders:checkout' %}' enctype="application/x-www-form-urlencoded">
+    {% csrf_token %}
+    <button type='submit'>Оформить заказ</button>
+</form>
+{% else %}
+<p>Ваша корзина пуста.</p>
+{% endif %}
+{% endblock %}
+
