@@ -8,7 +8,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from catalog.models import Flower
 
-
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -23,7 +22,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 @login_required
 def order_history(request):
     orders = Order.objects.filter(customer=request.user)
-    return render(request, 'orders/orders_history.html', {'orders': orders})
+    return render(request, 'orders/order_history.html', {'orders': orders})
+
 
 
 @login_required
@@ -62,7 +62,7 @@ def checkout(request):
                 OrderItem.objects.create(order=order, flower=flower, quantity=quantity)
 
             request.session['cart'] = {}
-            return redirect('accounts:profile')
+            return redirect('orders:order_history')
     else:
         form = OrderForm(initial=initial_data)
 

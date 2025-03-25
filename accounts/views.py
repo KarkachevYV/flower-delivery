@@ -10,11 +10,7 @@ from orders.models import Order
 from django.db.models import Sum
 import logging
 
-logger = logging.getLogger()
-logger.debug('This is a debug message')
-
-# def some_view(request):
-#     logger.debug('Отладочное сообщение: пользователь зашел на страницу.')
+logger = logging.getLogger(__name__)
 
 @role_required(['admin'])
 def admin_dashboard(request):
@@ -34,19 +30,21 @@ def home(request):
 
 def register(request):
     if request.method == 'POST':
+        print("Форма отправлена")
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.country = form.cleaned_data.get('country')
-            user.region = form.cleaned_data.get('region')
-            user.city = form.cleaned_data.get('city')
-            user.street = form.cleaned_data.get('street')
-            user.house_number = form.cleaned_data.get('house_number')
-            user.postal_code = form.cleaned_data.get('postal_code')
-            user.phone_number = form.cleaned_data.get('phone_number')
-            user.save()
-            login(request, user)
-            return redirect('accounts:profile')
+            print("Форма валидна")
+            try:
+                user = form.save()
+                logger.info(f"Пользователь успешно создан: {user.username}")
+                login(request, user)
+                return redirect('accounts:profile')
+            except Exception as e:
+                logger.error(f"Ошибка при регистрации пользователя: {e}")
+                form.add_error(None, "Во время регистрации произошла ошибка. Пожалуйста, попробуйте снова.")
+        else:
+            print("Форма не валидна:", form.errors)
+            logger.error(f"Ошибки валидации формы: {form.errors}")
     else:
         form = UserRegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
