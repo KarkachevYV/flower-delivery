@@ -12,6 +12,12 @@ class UserRegistrationForm(UserCreationForm):
     postal_code = forms.CharField(max_length=10, required=False)
     phone_number = forms.CharField(max_length=20, required=False)
 
+    def clean_phone_number(self):
+        phone_number = self.cleaned_data.get('phone_number')
+        if CustomUser.objects.filter(phone_number=phone_number).exists():
+            raise forms.ValidationError("Пользователь с таким номером телефона уже существует.")
+        return phone_number
+    
     class Meta:
         model = CustomUser
         fields = ('username', 'email', 'password1', 'password2', 
@@ -31,3 +37,5 @@ class UserRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+

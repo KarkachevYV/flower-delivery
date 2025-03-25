@@ -8,6 +8,7 @@ from .forms import UserRegistrationForm
 from accounts.models import CustomUser
 from orders.models import Order
 from django.db.models import Sum
+from django.db.utils import IntegrityError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -30,21 +31,16 @@ def home(request):
 
 def register(request):
     if request.method == 'POST':
-        print("Форма отправлена")
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            print("Форма валидна")
             try:
                 user = form.save()
-                logger.info(f"Пользователь успешно создан: {user.username}")
                 login(request, user)
                 return redirect('accounts:profile')
-            except Exception as e:
-                logger.error(f"Ошибка при регистрации пользователя: {e}")
-                form.add_error(None, "Во время регистрации произошла ошибка. Пожалуйста, попробуйте снова.")
+            except IntegrityError:
+                form.add_error(None, "Пользователь с таким именем или номером телефона уже существует.")
         else:
             print("Форма не валидна:", form.errors)
-            logger.error(f"Ошибки валидации формы: {form.errors}")
     else:
         form = UserRegistrationForm()
     return render(request, 'accounts/register.html', {'form': form})
