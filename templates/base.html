@@ -15,6 +15,9 @@
     <nav>
         <a href="{% url 'accounts:home' %}">Главная</a>|
         <a href="{% url 'catalog:flower_catalog' %}">Каталог</a> |
+        {% if user.is_authenticated and user.role == 'admin' %}
+            <a href="{% url 'admin_panel:dashboard' %}">Админ-панель</a> |
+        {% endif %}
         {% if user.is_authenticated %}
             <a href="{% url 'orders:order_history' %}">Мои заказы</a> |
             <p>Привет, {{ user.username }} | <a href="{% url 'accounts:profile' %}">Профиль</a> |

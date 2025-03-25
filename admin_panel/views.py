@@ -1,4 +1,7 @@
 # admin_panel/views.py
+from django.db.models import Q
+from datetime import datetime
+from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import user_passes_test
 from accounts.models import CustomUser
@@ -30,7 +33,7 @@ def manage_users(request):
         form = UserManagementForm(request.POST, instance=user)
         if form.is_valid():
             form.save()
-            return redirect('manage_users')
+            return redirect('admin_panel:manage_users')
     else:
         form = UserManagementForm()
 
@@ -39,9 +42,26 @@ def manage_users(request):
         'form': form
     })
 
-@user_passes_test(is_admin)
+
+@user_passes_test(lambda u: u.is_authenticated and u.role == 'admin')
 def manage_orders(request):
-    orders = Order.objects.all()
+    orders_list = Order.objects.all().order_by('-created_at')  # Сортировка по дате создания (от новых к старым)
+    
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+
+    if start_date and end_date:
+        try:
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+            orders_list = orders_list.filter(created_at__date__range=[start_dt, end_dt])
+        except ValueError:
+            pass  # Если формат даты некорректен, фильтр не применяется
+    
+    paginator = Paginator(orders_list, 10)  # Показываем по 10 заказов на странице
+
+    page_number = request.GET.get('page')
+    orders = paginator.get_page(page_number)
 
     if request.method == 'POST':
         order_id = request.POST.get('order_id')
@@ -49,7 +69,7 @@ def manage_orders(request):
         form = OrderManagementForm(request.POST, instance=order)
         if form.is_valid():
             form.save()
-            return redirect('manage_orders')
+            return redirect('admin_panel:manage_orders')
     else:
         form = OrderManagementForm()
 

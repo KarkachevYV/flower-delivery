@@ -9,6 +9,7 @@
         <th>Пользователь</th>
         <th>Дата создания</th>
         <th>Статус</th>
+        <th>Действия</th>
     </tr>
     {% for order in orders %}
     <tr>
@@ -16,15 +17,38 @@
         <td>{{ order.user.username }}</td>
         <td>{{ order.created_at }}</td>
         <td>{{ order.status }}</td>
+        <td>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="order_id" value="{{ order.id }}">
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+            </form>
+        </td>
     </tr>
     {% endfor %}
 </table>
 
-<h3>Редактировать заказ</h3>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Сохранить</button>
-</form>
-{% endblock %}
+<!-- Пагинация -->
+<div class="pagination">
+  {% if orders.has_previous %}
+      <a href="?page={{ orders.previous_page_number }}">Назад</a>
+  {% endif %}
 
+  <span>Страница {{ orders.number }} из {{ orders.paginator.num_pages }}</span>
+
+  {% if orders.has_next %}
+      <a href="?page={{ orders.next_page_number }}">Вперёд</a>
+  {% endif %}
+</div>
+
+<h3>Фильтр по датам</h3>
+<form method="get">
+    <label for="start_date">От:</label>
+    <input type="date" name="start_date" value="{{ request.GET.start_date }}">
+    <label for="end_date">До:</label>
+    <input type="date" name="end_date" value="{{ request.GET.end_date }}">
+    <button type="submit" class="btn btn-secondary">Фильтровать</button>
+</form>
+
+{% endblock %}
