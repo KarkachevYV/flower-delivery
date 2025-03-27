@@ -3,27 +3,54 @@
 
 {% block content %}
 <h2>Управление товарами</h2>
-<h3>Цветы</h3>
+<!-- Список товаров -->
 <table>
-    <tr>
-        <th>Название</th>
-        <th>Цена</th>
-        <th>В наличии</th>
-    </tr>
-    {% for flower in flowers %}
-    <tr>
-        <td>{{ flower.name }}</td>
-        <td>{{ flower.price }}</td>
-        <td>{{ flower.in_stock|yesno:"Да,Нет" }}</td>
-    </tr>
-    {% endfor %}
+  <tr>
+      <th>ID</th>
+      <th>Название</th>
+      <th>Описание</th>
+      <th>Цена</th>
+      <th>Доступность</th>
+      <th>Категория</th>
+      <th>Действие</th>
+  </tr>
+  {% for flower in flowers %}
+  <tr>
+    <td>{{ flower.id }}</td>
+    <td>{{ flower.name }}</td>
+    <td>{{ flower.description }}</td>
+    <td>{{ flower.price }}</td>
+    <td>{% if flower.in_stock %} В наличии {% else %} Нет в наличии {% endif %}</td>
+    <td>{{ flower.category }}</td>
+    <td>
+        <a href="{% url 'admin_panel:manage_products' %}?edit_id={{ flower.id }}" class="btn btn-primary">
+            Редактировать
+        </a>
+    </td>
+  </tr>
+  {% endfor %}
 </table>
 
-<h3>Редактировать товар</h3>
+<!-- Форма для добавления/редактирования товара -->
+<h3>{% if editing %}Редактировать товар{% else %}Добавить новый товар{% endif %}</h3>
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Сохранить</button>
+    {% if selected_flower %}
+        <input type="hidden" name="flower_id" value="{{ selected_flower.id }}">
+    {% endif %}
+    <button type="submit" class="btn {% if editing %}btn-warning{% else %}btn-success{% endif %}">
+        {% if editing %}Сохранить изменения{% else %}Добавить товар{% endif %}
+    </button>
 </form>
-{% endblock %}
 
+
+<!-- Форма для добавления новой категории -->
+<h3>Добавить новую категорию</h3>
+<form method="post" action="{% url 'admin_panel:add_category' %}">
+    {% csrf_token %}
+    {{ category_form.as_p }}
+    <button type="submit" class="btn btn-info">Добавить категорию</button>
+</form>
+
+{% endblock %}

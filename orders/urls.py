@@ -1,6 +1,7 @@
 # orders/urls.py
 from django.urls import path
 from . import views
+# from .views import repeat_order
 
 app_name = 'orders'
 
@@ -10,4 +11,5 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),  # оформление заказа
     path('api/orders/', views.OrderViewSet.as_view({'get': 'list'}), name='order_api'),  # API для заказов
     path('order-history/', views.order_history, name='order_history'),  # история заказов
+    path('repeat-order/<int:order_id>/', views.repeat_order, name='repeat_order'),
 ]

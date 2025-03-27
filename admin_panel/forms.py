@@ -2,7 +2,7 @@
 from django import forms
 from accounts.models import CustomUser
 from orders.models import Order
-from catalog.models import Flower
+from catalog.models import Flower, Category
 
 class UserManagementForm(forms.ModelForm):
     class Meta:
@@ -26,9 +26,19 @@ class OrderManagementForm(forms.ModelForm):
 class FlowerManagementForm(forms.ModelForm):
     class Meta:
         model = Flower
-        fields = ['name', 'price', 'in_stock']
+        fields = ['name', 'description', 'price', 'in_stock', 'category']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control'}),
             'in_stock': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'category': forms.Select(attrs={'class': 'form-control'})
+        }
+
+class CategoryForm(forms.ModelForm):
+    class Meta:
+        model = Category
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'})
         }

@@ -3,11 +3,12 @@ from django.db.models import Q
 from datetime import datetime
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import user_passes_test
 from accounts.models import CustomUser
-from orders.models import Order
+from orders.models import Order, OrderItem
 from catalog.models import Flower, Category
-from .forms import UserManagementForm, OrderManagementForm, FlowerManagementForm
+from .forms import UserManagementForm, OrderManagementForm, FlowerManagementForm, CategoryForm
 
 def is_admin(user):
     return user.is_authenticated and user.role == 'admin'
@@ -78,23 +79,61 @@ def manage_orders(request):
         'form': form
     })
 
-@user_passes_test(is_admin)
+@staff_member_required
 def manage_products(request):
     flowers = Flower.objects.all()
     categories = Category.objects.all()
+    form = FlowerManagementForm()
+    category_form = CategoryForm()
+    editing = False  # Флаг для отслеживания режима редактирования
+    selected_flower = None  # Для хранения текущего редактируемого товара
 
     if request.method == 'POST':
-        flower_id = request.POST.get('flower_id')
-        flower = get_object_or_404(Flower, id=flower_id)
-        form = FlowerManagementForm(request.POST, instance=flower)
+        if 'flower_id' in request.POST:  # Редактирование
+            selected_flower = get_object_or_404(Flower, id=request.POST['flower_id'])
+            form = FlowerManagementForm(request.POST, instance=selected_flower)
+            editing = True
+        else:  #  Добавление нового товара
+            form = FlowerManagementForm(request.POST)
+
         if form.is_valid():
             form.save()
-            return redirect('manage_products')
-    else:
-        form = FlowerManagementForm()
+            return redirect('admin_panel:manage_products')
+
+    # Если был GET-запрос с параметром `edit_id`, то заполняем форму товара
+    elif 'edit_id' in request.GET:
+        selected_flower = get_object_or_404(Flower, id=request.GET['edit_id'])
+        form = FlowerManagementForm(instance=selected_flower)
+        editing = True
 
     return render(request, 'admin_panel/manage_products.html', {
         'flowers': flowers,
         'categories': categories,
-        'form': form
+        'form': form,
+        'category_form': category_form,
+        'editing': editing,
+        'selected_flower': selected_flower
     })
+
+@staff_member_required
+def add_category(request):
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin_panel:manage_products')
+    return redirect('admin_panel:manage_products')
+
+def repeat_order(request, order_id):
+    old_order = get_object_or_404(Order, id=order_id)
+    new_order = Order.objects.create(user=old_order.user, status='new')
+
+    for item in old_order.items.all():
+        OrderItem.objects.create(
+            order=new_order,
+            flower=item.flower,
+            quantity=item.quantity,
+            price=item.price
+        )
+
+    return redirect('cart')  # Перенаправление в корзину

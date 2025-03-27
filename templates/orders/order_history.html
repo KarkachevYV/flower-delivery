@@ -4,9 +4,15 @@
 <h2>История заказов</h2>
 <ul>
     {% for order in orders %}
-        <li>Заказ №{{ order.id }} — Статус: {{ order.status }}</li>
+      <li>
+          Заказ №{{ order.id }} — Статус: {{ order.status }}
+          <form action="{% url 'orders:repeat_order' order.id %}" method="post" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary">Повторить заказ</button>
+          </form>
+      </li>
     {% empty %}
-    <p>У вас нет заказов.</p>
+      <p>У вас нет заказов.</p>
     {% endfor %}
 </ul>
 {% endblock %}

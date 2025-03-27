@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Order, OrderItem, Flower
 from .forms import OrderForm  # Импортируем форму для оформления заказа
 from .serializers import OrderSerializer
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from catalog.models import Flower
 
@@ -18,6 +18,27 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Order.objects.filter(customer=self.request.user)
         return super().get_queryset()
 
+@login_required
+def repeat_order(request, order_id):
+    old_order = get_object_or_404(Order, id=order_id, customer=request.user)
+
+    new_order = Order.objects.create(customer=request.user, status='new')
+
+    cart = request.session.get('cart', {})  # Загружаем текущую корзину
+
+    for item in old_order.items.all():
+        OrderItem.objects.create(
+            order=new_order,
+            flower=item.flower,
+            quantity=item.quantity,
+            price=item.flower.price  # Берём цену из модели Flower
+        )
+        cart[str(item.flower.id)] = cart.get(str(item.flower.id), 0) + item.quantity  # Кладём в корзину
+
+    request.session['cart'] = cart  # Сохраняем в сессии
+    request.session.modified = True  # Помечаем, что сессия изменилась
+
+    return redirect('orders:cart')
 
 @login_required
 def order_history(request):
@@ -59,9 +80,13 @@ def checkout(request):
 
             for flower_id, quantity in request.session.get('cart', {}).items():
                 flower = Flower.objects.get(id=flower_id)
-                OrderItem.objects.create(order=order, flower=flower, quantity=quantity)
-
-            request.session['cart'] = {}
+                OrderItem.objects.create(
+                    order=order,
+                    flower=flower,
+                    quantity=quantity,
+                    price=flower.price  # ✅ Добавили цену
+                )
+            request.session['cart'] = {}   # Очищаем корзину после заказа
             return redirect('orders:order_history')
     else:
         form = OrderForm(initial=initial_data)
