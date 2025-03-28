@@ -1,18 +1,32 @@
 # Шаблон order_history.html
 {% extends 'base.html' %}
+
 {% block content %}
-<h2>История заказов</h2>
-<ul>
-    {% for order in orders %}
-      <li>
-          Заказ №{{ order.id }} — Статус: {{ order.status }}
-          <form action="{% url 'orders:repeat_order' order.id %}" method="post" style="display:inline;">
-              {% csrf_token %}
-              <button type="submit" class="btn btn-primary">Повторить заказ</button>
-          </form>
-      </li>
-    {% empty %}
-      <p>У вас нет заказов.</p>
-    {% endfor %}
-</ul>
+<div class="container mt-4">
+    <h2 class="mb-4">История заказов</h2>
+    <div class="list-group">
+        {% for order in orders %}
+        <div class="list-group-item mb-3 shadow-sm">
+            <h5 class="mb-3">Заказ №{{ order.id }} — <span class="badge badge-info">{{ order.status }}</span></h5>
+            <div class="row">
+                {% for item in order.items.all %}
+                <div class="col-md-4 mb-3">
+                    <img src="{{ item.flower.image.url }}" alt="{{ item.flower.name }}" class="img-fluid rounded mb-2" style="max-width: 100%;">
+                    <h6>{{ item.flower.name }}</h6>
+                    <p>{{ item.quantity }} шт. — {{ item.price }} руб.</p>
+                    <p><small>{{ item.flower.description }}</small></p>
+                    <p><em>Комментарий: {{ item.comments }}</em></p>
+                </div>
+                {% endfor %}
+            </div>
+            <form action="{% url 'orders:repeat_order' order.id %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary mt-2">Повторить заказ</button>
+            </form>
+        </div>
+        {% empty %}
+        <p class="text-muted">У вас нет заказов.</p>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

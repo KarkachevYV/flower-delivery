@@ -1,17 +1,31 @@
 # templates/accounts/profile.html
 {% extends 'base.html' %}
 {% block content %}
-<h2>Профиль пользователя</h2>
-<ul>
-    <li>Имя: {{ user.first_name }} {{ user.last_name }}</li>
-    <li>Email: {{ user.email }}</li>
-    <li>Телефон: {{ user.phone_number }}</li>
-    <li>Адрес: {{ user.country }}, {{ user.region }}, {{ user.city }}, {{ user.street }}, {{ user.house_number }}</li>
-</ul>
-<form method="post" action="{% url 'accounts:logout' %}" style="display: inline;">
-  {% csrf_token %}
-  <button type="submit" style="background: none; border: none; padding: 0; font: inherit; color: blue; cursor: pointer;">
-      Выход
-  </button>
-</form>
+<h2 style="font-family: 'Arial', sans-serif; text-align: center; color: #333;">Профиль пользователя</h2>
+<div style="max-width: 600px; margin: 0 auto; background-color: #f9f9f9; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+    <ul style="list-style-type: none; padding: 0;">
+        <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong>Имя:</strong> {{ user.first_name }} {{ user.last_name }}
+        </li>
+        <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong>Email:</strong> {{ user.email }}
+        </li>
+        <li style="padding: 10px 0; border-bottom: 1px solid #eee;">
+            <strong>Телефон:</strong> {{ user.phone_number }}
+        </li>
+        <li style="padding: 10px 0;">
+            <strong>Адрес:</strong> {{ user.country }}, {{ user.region }}, {{ user.city }}, {{ user.street }}, {{ user.house_number }}
+        </li>
+    </ul>
+
+    {% comment %} <!-- Ссылка на главную страницу -->
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="{% url 'home' %}" class="btn btn-primary">
+            На главную
+        </a>
+    </div> {% endcomment %}
+</div>
 {% endblock %}
+
+
+

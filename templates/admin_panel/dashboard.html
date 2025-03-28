@@ -2,46 +2,55 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container">
-        <h2>Панель Управления</h2>
+<div class="container mt-5">
+    <h2 class="mb-4 text-center">Панель Управления</h2>
 
-        <!-- Здесь будут блоки для управления пользователями, заказами, товарами -->
-        <div class="row">
-            <!-- Управление пользователями -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Управление пользователями</h4>
-                    </div>
-                    <div class="card-body">
-                        <p><a href="{% url 'admin_panel:manage_users' %}" class="btn btn-primary">Перейти к пользователям</a></p>
-                    </div>
+    <!-- Блоки для управления пользователями, заказами, товарами -->
+    <div class="row">
+        <!-- Управление пользователями -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-users"></i> Управление пользователями</h4>
                 </div>
-            </div>
-
-            <!-- Управление заказами -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Управление заказами</h4>
-                    </div>
-                    <div class="card-body">
-                        <p><a href="{% url 'admin_panel:manage_orders' %}" class="btn btn-primary">Перейти к заказам</a></p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Управление товарами -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Управление товарами</h4>
-                    </div>
-                    <div class="card-body">
-                        <p><a href="{% url 'admin_panel:manage_products' %}" class="btn btn-primary">Перейти к товарам</a></p>
-                    </div>
+                <div class="card-body">
+                    <p class="card-text">Управляйте пользователями, просматривайте и редактируйте их данные.</p>
+                    <a href="{% url 'admin_panel:manage_users' %}" class="btn btn-outline-primary btn-block">
+                        Перейти к пользователям
+                    </a>
                 </div>
             </div>
         </div>
-    </div>
-{% endblock %}
+
+        <!-- Управление заказами -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-shopping-cart"></i> Управление заказами</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Просматривайте, редактируйте и управляйте заказами клиентов.</p>
+                    <a href="{% url 'admin_panel:manage_orders' %}" class="btn btn-outline-success btn-block">
+                        Перейти к заказам
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Управление товарами -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0"><i class="fas fa-box"></i> Управление товарами</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">Следите за товарными запасами и обновляйте информацию о товарах.</p>
+                    <a href="{% url 'admin_panel:manage_products' %}" class="btn btn-outline-warning btn-block">
+                        Перейти к товарам
+                      </a>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+  {% endblock %}

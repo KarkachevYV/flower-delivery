@@ -149,10 +149,14 @@ USE_TZ = True
 
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) 
+
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-MEDIA_ROOT = BASE_DIR / 'media'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Директория для collectstatic
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 # 
 LOGIN_URL = 'accounts:login'  # URL для перенаправления на страницу входа
 LOGIN_REDIRECT_URL = 'accounts:profile'  # После логина перенаправляем на профиль

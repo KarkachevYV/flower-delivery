@@ -1,56 +1,146 @@
-# Шаблон admin_panel/manage_products.html
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Управление товарами</h2>
-<!-- Список товаров -->
-<table>
-  <tr>
-      <th>ID</th>
-      <th>Название</th>
-      <th>Описание</th>
-      <th>Цена</th>
-      <th>Доступность</th>
-      <th>Категория</th>
-      <th>Действие</th>
-  </tr>
-  {% for flower in flowers %}
-  <tr>
-    <td>{{ flower.id }}</td>
-    <td>{{ flower.name }}</td>
-    <td>{{ flower.description }}</td>
-    <td>{{ flower.price }}</td>
-    <td>{% if flower.in_stock %} В наличии {% else %} Нет в наличии {% endif %}</td>
-    <td>{{ flower.category }}</td>
-    <td>
-        <a href="{% url 'admin_panel:manage_products' %}?edit_id={{ flower.id }}" class="btn btn-primary">
-            Редактировать
-        </a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
+<div class="container my-5">
+    <h2 class="mb-4">Управление товарами</h2>
 
-<!-- Форма для добавления/редактирования товара -->
-<h3>{% if editing %}Редактировать товар{% else %}Добавить новый товар{% endif %}</h3>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    {% if selected_flower %}
-        <input type="hidden" name="flower_id" value="{{ selected_flower.id }}">
-    {% endif %}
-    <button type="submit" class="btn {% if editing %}btn-warning{% else %}btn-success{% endif %}">
-        {% if editing %}Сохранить изменения{% else %}Добавить товар{% endif %}
+    <!-- Список товаров -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Название</th>
+                    <th scope="col">Описание</th>
+                    <th scope="col">Цена</th>
+                    <th scope="col">Доступность</th>
+                    <th scope="col">Категория</th>
+                    <th scope="col">Действие</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flower in flowers %}
+                <tr>
+                    <td>{{ flower.id }}</td>
+                    <td>{{ flower.name }}</td>
+                    <td>{{ flower.description }}</td>
+                    <td>{{ flower.price }}</td>
+                    <td>
+                        {% if flower.in_stock %}
+                            <span class="badge bg-success">В наличии</span>
+                        {% else %}
+                            <span class="badge bg-danger">Нет в наличии</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ flower.category }}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editProductModal" 
+                                data-id="{{ flower.id }}" data-name="{{ flower.name }}"
+                                data-description="{{ flower.description }}" data-price="{{ flower.price }}"
+                                data-category="{{ flower.category }}">
+                            <i class="fas fa-edit"></i> Редактировать
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Кнопка для добавления нового товара -->
+    <button class="btn btn-success mb-4" data-bs-toggle="modal" data-bs-target="#addProductModal">
+        <i class="fas fa-plus"></i> Добавить новый товар
     </button>
-</form>
 
+    <!-- Кнопка для добавления новой категории -->
+    <button class="btn btn-info mb-4" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+      <i class="fas fa-plus-circle"></i> Добавить категорию
+  </button>
 
-<!-- Форма для добавления новой категории -->
-<h3>Добавить новую категорию</h3>
-<form method="post" action="{% url 'admin_panel:add_category' %}">
-    {% csrf_token %}
-    {{ category_form.as_p }}
-    <button type="submit" class="btn btn-info">Добавить категорию</button>
-</form>
+  <!-- Модальное окно для добавления/редактирования товара -->
+  <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <form method="post">
+                  {% csrf_token %}
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="editProductModalLabel">Редактировать товар</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                      {{ form.as_p }}
+                      <input type="hidden" name="flower_id" id="flower-id">
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                      <button type="submit" class="btn btn-warning"><i class="fas fa-save"></i> Сохранить изменения</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
 
+  <!-- Модальное окно для добавления нового товара -->
+  <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <form method="post">
+                  {% csrf_token %}
+                  <div class="modal-header">
+                      <h5 class="modal-title" id="addProductModalLabel">Добавить новый товар</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                      {{ form.as_p }}
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                      <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Добавить товар</button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+
+  <!-- Модальное окно для добавления новой категории -->
+  <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <form method="post" action="{% url 'admin_panel:add_category' %}">
+                {% csrf_token %}
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCategoryModalLabel">Добавить новую категорию</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    {{ category_form.as_p }}
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="submit" class="btn btn-info"><i class="fas fa-plus-circle"></i> Добавить категорию</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+// Заполнение модального окна данными для редактирования товара
+document.getElementById('editProductModal').addEventListener('show.bs.modal', function (event) {
+    var button = event.relatedTarget;
+    var id = button.getAttribute('data-id');
+    var name = button.getAttribute('data-name');
+    var description = button.getAttribute('data-description');
+    var price = button.getAttribute('data-price');
+    var category = button.getAttribute('data-category');
+
+    var modal = this;
+    modal.querySelector('#flower-id').value = id;
+    modal.querySelector('input[name="name"]').value = name;
+    modal.querySelector('textarea[name="description"]').value = description;
+    modal.querySelector('input[name="price"]').value = price;
+    modal.querySelector('select[name="category"]').value = category;
+});
+</script>
 {% endblock %}
