@@ -1,5 +1,7 @@
 # 📦 Проект «Доставка цветов»
 
+# 🚀 Flower Delivery – интернет-магазин цветов
+
 ## 📄 Описание проекта
 Проект представляет собой веб-приложение и телеграм-бота для заказа цветов. Веб-приложение реализовано на Django с использованием Django REST Framework (DRF), а телеграм-бот — на библиотеке aiogram. Проект позволяет пользователям просматривать каталог, оформлять заказы, оставлять отзывы и управлять своими заказами. Администраторы могут просматривать аналитику заказов, изменять статусы и взаимодействовать с заказами через веб-интерфейс и телеграм-бот.
 
@@ -9,108 +11,24 @@
 ```
 flower-delivery/
 │── accounts/             # Приложение для управления пользователями
-│   ├── __init__.py 
-│   ├── migrations/
-│   ├── admin.py
-│   ├── decorators.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── urls.py
-│   └── views.py
-│
 │── admin_panel/          # Административная панель заказов
-│   ├── __init__.py 
-│   ├── migrations/
-│   ├── admin.py
-│   ├── forms.py
-│   ├── models.py    
-│   ├── urls.py
-│   └── views.py
-│
 │── catalog/              # Приложение для каталога цветов
-│   ├── __init__.py 
-│   ├── migrations/
-│   ├── admin.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── serializers.py
-│   ├── urls.py
-│   └── views.py
-│
 │── bot/                  # Телеграм-бот на aiogram
-│   ├── __init__.py 
-│   ├── handlers/          # Хендлеры команд и callback
-│   │   ├── __init__.py
-│   │   ├── commands.py
-│   │   └── callbacks.py
-│   ├── keyboards/         # Reply и Inline клавиатуры
-│   │   ├── __init__.py
-│   │   ├── reply.py
-│   │   └── inline.py
-│   ├── services/          # Логика взаимодействия с REST API
-│   │   ├── __init__.py
-│   │   └── api.py
-│   ├── config.py          # Конфигурация токенов и настроек бота
-│   └── main.py            # Запуск бота
-│
 │── flower_delivery/      # Основной проект Django
-│   ├── __init__.py  
-│   ├── asgi.py
-│   ├── celery.py
-│   ├── settings.py
-│   ├── urls.py
-│   └── wsgi.py
-│
-│── media/          # Медиафайлы (изображения букетов и профилей)
-│   └── flowers/  
-│      └── # 10 файлов с расширением - .jpg
-│── orders/         # Приложение для управления заказами
+│── media/                # Медиафайлы (изображения букетов и профилей)
+│── orders/               # Приложение для управления заказами
 │   ├── management/  
 │   │   └── commands/
-│   │        └── generate_daily_report.py
+│   │        └── generate_daily_report.py  # Скрипт для генерации отчёта
 │   ├── templatetags/  
 │   │   └── cart_filters.py
-│   ├── __init__.py 
-│   ├── migrations/
-│   ├── admin.py
-│   ├── forms.py
-│   ├── models.py
-│   ├── serializers.py
-│   ├── tasks.py
-│   ├── urls.py
-│   └── views.py
-│
-│── static/         # Статика (CSS, JS, изображения)
-│   ├── css/
-│   │   └── styles.css
-│   └── js/
-│       └── script.js
-│── staticfiles/ 
-│   └── # файлы из admin, css, js,  rest_framework
-│   
-│── templates/      # Шаблоны Django
-│   ├── base.html
-│   ├──  admin_panel/
-│   │   ├──  dashboard.html
-│   │   ├── manage_orders.html
-│   │   ├── manage_products.html
-│   │   └── manage_users.html
-│   ├── accounts/
-│   │   ├── admin_dashboard.html
-│   │   ├── login.html
-│   │   ├── logout.html
-│   │   ├── register.html
-│   │   └── profile.html
-│   ├── catalog/
-│   │   └── flower_catalog.html
-│   └── orders/
-│       ├── cart.html
-│       ├── checkout.html
-│       └── orders_history.html
-│   
-│── tests/
-│── venv
-│── .env
+│   ├── tasks.py          # Фоновые задачи Celery
+│   ├── views.py          # Обработчик export_daily_report(request)
+│── static/               # Статика (CSS, JS, изображения)
+│── templates/            # Шаблоны Django
+│── tests/                # Тесты
+│── venv/                 # Виртуальное окружение
+│── .env                  # Конфигурация окружения
 │── .gitignore
 │── celery-schedule.bak
 │── celery-schedule.dat
@@ -120,7 +38,6 @@ flower-delivery/
 │── README.md
 └── requirements.txt
 ```
-
 ---
 
 ## 🚀 Запуск проекта
@@ -169,6 +86,31 @@ python bot/main.py
 
 ---
 
+## 🛠 Фоновые задачи (Celery + Redis)
+Проект использует Celery для фоновых задач, а Redis в качестве брокера сообщений.
+
+### 1. Запуск Redis
+Перед запуском Celery убедитесь, что Redis работает:
+```
+sudo systemctl status redis  # Проверка статуса
+sudo systemctl start redis   # Запуск (если не работает)
+
+```
+
+### 2. Запуск Celery worker
+```
+celery -A flower_delivery worker --loglevel=info
+
+```
+
+### 3. Запуск Celery Beat
+```
+celery -A flower_delivery beat --loglevel=info
+
+```
+
+---
+
 ## 📊 Функционал проекта
 - Регистрация и аутентификация пользователей.
 - Просмотр каталога цветов.
@@ -176,6 +118,18 @@ python bot/main.py
 - Отправка уведомлений в Telegram при оформлении заказа.
 - Административная панель для управления заказами и пользователями.
 - Аналитика по заказам в Telegram и веб-интерфейсе.
+
+---
+
+## 📊 Аналитика и статистика
+Для сбора статистики используется Celery Beat, который по расписанию запускает генерацию отчётов.
+
+ - Фоновая задача Celery (orders/tasks.py) обрабатывает заказы и формирует отчёт.
+
+ - Команда Django (orders/management/commands/generate_daily_report.py) выполняется по расписанию.
+
+ - Ручной экспорт отчёта (export_daily_report(request)) доступен через Django Views.
+
 
 ---
 
