@@ -1,6 +1,17 @@
+html, body {
+  height: 100%;
+  margin: 0;
+}
+ 
  body {
+  display: flex;
+  flex-direction: column;
   background-color: #d3d2cf;
   font-family: Arial, sans-serif;
+}
+
+main {
+  flex: 1; /* This allows the main content to grow and fill the available space */
 }
 /*
 .navbar {
@@ -13,6 +24,8 @@
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 } */
+
+
 .navbar-nav .nav-item .nav-link {
   color: #fff;
 }
@@ -60,4 +73,28 @@ table {
   width: 100%;
   max-width: 100%;
   border-collapse: collapse;
+}
+
+      
+.jumbotron {
+  background-image: url('https://media.istockphoto.com/id/2164207000/photo/summer-bouquet-beautiful-multi-colored-fresh-flower-arrangement-birthday-bouquet-made-of.webp?a=1&b=1&s=612x612&w=0&k=20&c=72vI_Tu0QA2qRkxrij2B4DB4jtlkTAJvTSWj7xc6PL0=');
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  padding: 4rem 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.jumbotron .btn {
+  background-color: #ff4b5c;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+.jumbotron .btn:hover {
+  background-color: #ff6b6b;
+}
+.lead {
+  font-size: 1.25rem;
 }

@@ -1,4 +1,7 @@
-# orders/views.py
+import pandas as pd
+from django.http import HttpResponse
+from django.utils.timezone import now
+from orders.models import DailyReport
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from .models import Order, OrderItem, Flower
@@ -92,3 +95,22 @@ def checkout(request):
         form = OrderForm(initial=initial_data)
 
     return render(request, 'orders/checkout.html', {'form': form})
+
+def export_daily_report(request):
+    today = now().date()
+    report = DailyReport.objects.filter(date=today).first()
+
+    if not report:
+        return HttpResponse("Отчёт за сегодня ещё не сформирован.", content_type="text/plain")
+
+    # Создаём DataFrame для Excel
+    df = pd.DataFrame([{
+        "Дата": report.date,
+        "Количество заказов": report.total_orders,
+        "Продано товаров": report.total_items,
+        "Выручка (₽)": report.total_revenue,
+    }])
+
+    # Генерация Excel
+    response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = f'attachment; filename="daily_report_{today}.xlsx"'

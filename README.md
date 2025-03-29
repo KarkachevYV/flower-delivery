@@ -19,7 +19,11 @@ flower-delivery/
 │   └── views.py
 │
 │── admin_panel/          # Административная панель заказов
-│   ├── __init__.py     
+│   ├── __init__.py 
+│   ├── migrations/
+│   ├── admin.py
+│   ├── forms.py
+│   ├── models.py    
 │   ├── urls.py
 │   └── views.py
 │
@@ -27,6 +31,7 @@ flower-delivery/
 │   ├── __init__.py 
 │   ├── migrations/
 │   ├── admin.py
+│   ├── forms.py
 │   ├── models.py
 │   ├── serializers.py
 │   ├── urls.py
@@ -51,24 +56,38 @@ flower-delivery/
 │── flower_delivery/      # Основной проект Django
 │   ├── __init__.py  
 │   ├── asgi.py
+│   ├── celery.py
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
 │
 │── media/          # Медиафайлы (изображения букетов и профилей)
+│   └── flowers/  
+│      └── # 10 файлов с расширением - .jpg
 │── orders/         # Приложение для управления заказами
+│   ├── management/  
+│   │   └── commands/
+│   │        └── generate_daily_report.py
+│   ├── templatetags/  
+│   │   └── cart_filters.py
 │   ├── __init__.py 
 │   ├── migrations/
 │   ├── admin.py
+│   ├── forms.py
 │   ├── models.py
 │   ├── serializers.py
+│   ├── tasks.py
 │   ├── urls.py
 │   └── views.py
 │
 │── static/         # Статика (CSS, JS, изображения)
 │   ├── css/
-│   ├── js/
-│   └── images/
+│   │   └── styles.css
+│   └── js/
+│       └── script.js
+│── staticfiles/ 
+│   └── # файлы из admin, css, js,  rest_framework
+│   
 │── templates/      # Шаблоны Django
 │   ├── base.html
 │   ├──  admin_panel/
@@ -93,6 +112,9 @@ flower-delivery/
 │── venv
 │── .env
 │── .gitignore
+│── celery-schedule.bak
+│── celery-schedule.dat
+│── celery-schedule.dir
 │── db.sqlite3
 │── manage.py
 │── README.md

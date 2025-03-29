@@ -1,4 +1,3 @@
-# templates/base.html
 {% load static %}
 
 <!DOCTYPE html>
@@ -8,8 +7,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Магазин цветов{% endblock %}</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    {% comment %} <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> {% endcomment %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <style>
+      body {
+        font-family: 'Roboto', sans-serif;
+        color: #343a40;
+    }
+      .jumbotron {
+          background-image: url('https://media.istockphoto.com/id/2164207000/photo/summer-bouquet-beautiful-multi-colored-fresh-flower-arrangement-birthday-bouquet-made-of.webp?a=1&b=1&s=612x612&w=0&k=20&c=72vI_Tu0QA2qRkxrij2B4DB4jtlkTAJvTSWj7xc6PL0=');
+          background-size: cover;
+          background-attachment: fixed;
+          background-position: center;
+          color: white;
+          text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+          padding: 4rem 2rem;
+          border-radius: 0.5rem;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      .jumbotron .btn {
+          background-color: #ff4b5c;
+          border: none;
+          transition: background-color 0.3s ease;
+      }
+      .jumbotron .btn:hover {
+          background-color: #ff6b6b;
+      }
+      .lead {
+          font-size: 1.25rem;
+      }
+    </style> 
 </head>
 <body>
     <header>
@@ -52,9 +80,19 @@
         </nav>
     </header>
 
-    <main class="container mt-4">{% block content %}{% endblock %}</main>
+    <main class="container mt-4">
+      {% block content %}
+      <div class="jumbotron mt-4">
+        <h1 class="display-4">Добро пожаловать в Магазин цветов!</h1>
+        <p class="lead">Мы рады приветствовать вас в нашем магазине. Здесь вы найдете разнообразие цветов и композиций для любого случая.</p>
+        <hr class="my-4">
+        <p>Просмотрите наш каталог и выберите идеальный букет для себя или ваших близких.</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'catalog:flower_catalog' %}" role="button">Перейти к каталогу</a>
+      </div>
+      {% endblock %}
+    </main>
 
-    <!-- Модальное окно для выхода -->
+       <!-- Модальное окно для выхода -->
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
       <div class="modal-dialog">
           <div class="modal-content">
@@ -77,11 +115,14 @@
       </div>
     </div>
 
+    <footer class="bg-dark text-white text-center py-3 mt-4">
+        <p>© 2025 Магазин цветов. Все права защищены.</p>
+    </footer>
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-    {% comment %} <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script> {% endcomment %}
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     <script>
         $(document).ready(function() {
             $(".btn-logout").click(function() {

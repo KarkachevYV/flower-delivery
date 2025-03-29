@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.utils.timezone import now
 from accounts.models import CustomUser
 from catalog.models import Flower
 
@@ -36,3 +37,16 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f'{self.flower.name} x {self.quantity}'
+
+class DailyReport(models.Model):
+    date = models.DateField(default=now, unique=True, verbose_name="Дата отчёта")
+    total_orders = models.PositiveIntegerField(default=0, verbose_name="Количество заказов")
+    total_items = models.PositiveIntegerField(default=0, verbose_name="Проданных товаров")
+    total_revenue = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, verbose_name="Выручка")
+
+    def __str__(self):
+        return f"Отчёт за {self.date}"
+
+    class Meta:
+        verbose_name = "Ежедневный отчёт"
+        verbose_name_plural = "Ежедневные отчёты"    
