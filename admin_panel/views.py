@@ -1,4 +1,7 @@
 # admin_panel/views.py
+import os
+from django.http import FileResponse, HttpResponse
+from django.utils.timezone import now
 from django.db.models import Q
 from datetime import datetime
 from django.core.paginator import Paginator
@@ -9,6 +12,10 @@ from accounts.models import CustomUser
 from orders.models import Order, OrderItem
 from catalog.models import Flower, Category
 from .forms import UserManagementForm, OrderManagementForm, FlowerManagementForm, CategoryForm
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+
+REPORTS_DIR = "reports"
 
 def is_admin(user):
     return user.is_authenticated and user.role == 'admin'
@@ -18,10 +25,21 @@ def dashboard(request):
     user_count = CustomUser.objects.count()
     product_count = Flower.objects.count()
     order_count = Order.objects.count()
+
+    # Генерируем ссылки для скачивания отчётов
+    pdf_url = reverse("admin_panel:download_pdf_report")
+    excel_url = reverse("admin_panel:download_excel_report")
+
+    report_links = mark_safe(
+        f'<a href="{pdf_url}" class="btn btn-primary" style="margin-right: 10px;">📄 Скачать PDF</a>'
+        f'<a href="{excel_url}" class="btn btn-success">📊 Скачать Excel</a>'
+    )
+
     return render(request, 'admin_panel/dashboard.html', {
         'user_count': user_count,
         'product_count': product_count,
         'order_count': order_count,
+        "report_links": report_links,  # Передаём кнопки в шаблон
     })
 
 @user_passes_test(is_admin)
@@ -137,3 +155,23 @@ def repeat_order(request, order_id):
         )
 
     return redirect('cart')  # Перенаправление в корзину
+
+@staff_member_required
+def download_pdf_report(request):
+    """Скачивание PDF-отчёта за сегодня."""
+    today = now().date()
+    file_path = os.path.join(REPORTS_DIR, f"daily_report_{today}.pdf")
+
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, "rb"), as_attachment=True, filename=f"daily_report_{today}.pdf")
+    return HttpResponse("Отчёт не найден", status=404)
+
+@staff_member_required
+def download_excel_report(request):
+    """Скачивание Excel-отчёта за сегодня."""
+    today = now().date()
+    file_path = os.path.join(REPORTS_DIR, f"daily_report_{today}.xlsx")
+
+    if os.path.exists(file_path):
+        return FileResponse(open(file_path, "rb"), as_attachment=True, filename=f"daily_report_{today}.xlsx")
+    return HttpResponse("Отчёт не найден", status=404)

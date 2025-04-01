@@ -1,3 +1,4 @@
+#orders/views.py
 import pandas as pd
 from django.http import HttpResponse
 from django.utils.timezone import now
@@ -114,3 +115,10 @@ def export_daily_report(request):
     # Генерация Excel
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="daily_report_{today}.xlsx"'
+
+def changelist_view(self, request, extra_context=None):
+    """Добавляем кнопки скачивания на главную страницу заказов."""
+    extra_context = extra_context or {}
+    extra_context["report_links"] = self.report_links(None)  # Передаём HTML-код кнопок
+    return super().changelist_view(request, extra_context=extra_context)
+

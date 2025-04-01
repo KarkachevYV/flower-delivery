@@ -25,6 +25,9 @@ class Order(models.Model):
     phone = models.CharField(max_length=20)
     comments = models.TextField(blank=True, null=True)
 
+    # def total_price(self):
+    #     return sum(item.price * item.quantity for item in self.orderitem_set.all())
+
     def __str__(self):
         return f'Заказ #{self.id} — {self.customer.username}'
 
@@ -34,6 +37,10 @@ class OrderItem(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     price = models.DecimalField(max_digits=10, decimal_places=2)  # Добавляем поле price
 
+    def save(self, *args, **kwargs):
+        if not self.price:  # Если цена не установлена, берём её из Flower
+            self.price = self.flower.price
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'{self.flower.name} x {self.quantity}'

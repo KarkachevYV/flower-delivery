@@ -5,6 +5,11 @@
 <div class="container mt-5">
     <h2 class="mb-4 text-center">Панель Управления</h2>
 
+    <!-- Блок с кнопками скачивания отчетов -->
+    <div style="margin-bottom: 20px;">
+        {{ report_links|safe }}
+    </div>
+
     <!-- Блоки для управления пользователями, заказами, товарами -->
     <div class="row">
         <!-- Управление пользователями -->
