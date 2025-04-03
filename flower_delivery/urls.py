@@ -3,9 +3,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+# from . import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/bot/", include("bot_api.urls")),  # Подключаем API бота
+    # path('api/bot/users/', views.UserListView.as_view(), name='user-list'),
     path('', include('accounts.urls')),  # маршруты для аккаунтов
     path('catalog/', include('catalog.urls')),    # маршруты для каталога
     path('orders/', include('orders.urls')),      # маршруты для заказов
