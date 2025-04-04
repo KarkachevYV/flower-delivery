@@ -1,20 +1,65 @@
 # bot_api/views.py
 from rest_framework.decorators import api_view
-from rest_framework.views import APIView
 from rest_framework.response import Response
-from orders.models import Order
-from orders.serializers import OrderSerializer
+from rest_framework.views import APIView
+from rest_framework import status
+
 from django.shortcuts import get_object_or_404
+from django.db.models import Sum
+
 from accounts.models import CustomUser
 from accounts.serializers import UserSerializer
-from django.db.models import Sum
+
 from orders.models import Order, OrderItem
-from rest_framework.permissions import IsAdminUser
-from .models import BotUser
-from .serializers import BotUserSerializer
-from rest_framework import status
+from orders.serializers import OrderSerializer
+
 from bot_api.models import BotUser
-from bot_api.serializers import BotUserSerializer
+from .serializers import BotUserSerializer
+from accounts.utils import normalize_phone_number
+
+@api_view(["POST"])
+def link_phone_view(request):
+    telegram_id = request.data.get("telegram_id")
+    phone = request.data.get("phone_number")
+
+    if not phone or not telegram_id:
+        return Response({"error": "Необходимо указать номер телефона и Telegram ID"}, status=400)
+
+    # Нормализуем телефон
+    normalized = normalize_phone_number(phone)
+    print(f"📞 Входящий номер: {phone}")
+    print(f"✅ Нормализованный номер: {normalized}")
+
+    try:
+        # 🔎 Отладка: выведем все номера в базе перед поиском
+        all_numbers = list(CustomUser.objects.values_list("phone_number", flat=True))
+        print(f"📋 Все номера в базе: {all_numbers}")
+
+        # 🔍 Пробуем найти пользователя
+        user = CustomUser.objects.get(phone_number=normalized)
+        print(f"✅ Пользователь найден: {user}")
+
+        # Привязываем номер к боту
+        bot_user, _ = BotUser.objects.get_or_create(telegram_id=telegram_id)
+        bot_user.phone_number = normalized
+        bot_user.save()
+
+        print(f"✅ Телефон успешно привязан к {bot_user}")
+        return Response({
+            "message": "Телефон успешно привязан.",
+            "bot_user_id": bot_user.id,
+            "site_user_id": user.id
+        }, status=200)
+
+    except CustomUser.DoesNotExist:
+        # 🔍 Если не найден, пробуем через filter()
+        user = CustomUser.objects.filter(phone_number=normalized).first()
+        if not user:
+            print(f"❌ Нет совпадения с: {normalized}")
+            return Response({"error": "Пользователь с таким номером не найден"}, status=404)
+
+        print(f"⚠️ Пользователь всё же найден через filter(): {user}")
+        return Response({"error": "Пользователь с таким номером не найден"}, status=404)
 
 class UserListView(APIView):
     def get(self, request):

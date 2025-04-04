@@ -73,3 +73,5 @@ def user_info(request, user_id):
         return Response(serializer.data)
     except CustomUser.DoesNotExist:
         return Response({"error": "Пользователь не найден"}, status=404)
+    
+

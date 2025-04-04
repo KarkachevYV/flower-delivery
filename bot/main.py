@@ -1,6 +1,7 @@
 # bot/main.py        
 import asyncio
 from aiogram import Bot, Dispatcher
+from handlers import link_profile
 from config import TOKEN
 import sys
 import os
@@ -15,6 +16,7 @@ async def main():
 
     dp.include_router(start.router)
     dp.include_router(orders.router)
+    dp.include_router(link_profile.router)
 
     await dp.start_polling(bot)
 

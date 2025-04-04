@@ -1,13 +1,12 @@
 # bot_api/urls.py
 from django.urls import path
-from .views import bot_user_handler
+from bot_api.views import bot_user_handler, link_phone_view, UserListView
 from .views import (
     create_order,  # Создание заказа
     get_order_status,  # Получение статуса заказа
     get_user_info,  # Получение данных пользователя
     get_analytics,  # Аналитика для администратора
 )
-from .views import UserListView
 
 
 urlpatterns = [
@@ -18,4 +17,5 @@ urlpatterns = [
     path("order_status/<int:order_id>/", get_order_status, name="get_order_status"),
     path("user_info/<int:user_id>/", get_user_info, name="get_user_info"),
     path("analytics/", get_analytics, name="get_analytics"),
+    path("link_phone/", link_phone_view, name="link_phone"),
 ]

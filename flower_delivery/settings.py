@@ -164,31 +164,47 @@ LOGIN_URL = 'accounts:login'  # URL для перенаправления на �
 LOGIN_REDIRECT_URL = 'accounts:profile'  # После логина перенаправляем на профиль
 LOGOUT_REDIRECT_URL = 'accounts:home'    # После выхода на главную страницу
 
+
+import logging
+import logging.config
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
+    'filters': {
+    'require_debug_true': {
+        '()': 'django.utils.log.RequireDebugTrue',
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
         },
-        'file': {
-            'level': 'ERROR',  # Записываем только ошибки
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'debug.log'),
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+   'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
-            'level': 'ERROR',  # Логи уровня ERROR и выше
-            'propagate': True,
+            'handlers': ['console'],
+            'level': 'INFO',  # Уровень логирования по умолчанию для всех логгеров Django
         },
-        'django.request': {
-            'handlers': ['console', 'file'],
-            'level': 'ERROR',  # Только ошибки запросов
-            'propagate': True,
+        'bot_api': {  # Замените 'your_app_name' на имя вашего приложения
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Уровень логирования для вашего приложения
+            'propagate': False,
         },
-    },
+    }
+    }
 }
 
 # Default primary key field type

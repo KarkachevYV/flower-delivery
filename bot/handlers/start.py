@@ -1,4 +1,5 @@
-# bot/start.py
+# bot/handlers/start.py
+# bot/handlers/start.py
 from aiogram import Router, types, Dispatcher
 from aiogram.filters import Command
 import aiohttp
@@ -60,4 +61,17 @@ async def start_handler(message: types.Message):
     except Exception as e:
         print(f"Ошибка при запросе к API: {e}")
 
-    await message.answer(f"Добро пожаловать, {first_name}! 🎉")
+    # 👉 Добавляем кнопку с запросом номера телефона
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=[
+            [types.KeyboardButton(text="📱 Отправить номер телефона", request_contact=True)]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
+
+    await message.answer(
+        f"Добро пожаловать, {first_name}! 🎉\n\n"
+        "Чтобы продолжить, пожалуйста, отправьте свой номер телефона:",
+        reply_markup=keyboard
+    )
