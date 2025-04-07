@@ -1,16 +1,32 @@
 #orders/views.py
+
 import pandas as pd
 from django.http import HttpResponse
 from django.utils.timezone import now
 from orders.models import DailyReport
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from .models import Order, OrderItem, Flower
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
+from rest_framework import status, generics, viewsets
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from .models import Order, OrderItem, Flower, Review
 from .forms import OrderForm  # Импортируем форму для оформления заказа
-from .serializers import OrderSerializer
+from .serializers import OrderSerializer, ReviewSerializer
+from accounts.models import CustomUser
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from catalog.models import Flower
+
+@api_view(['GET'])
+def get_orders_by_user_id(request, user_id):
+    try:
+        orders = Order.objects.filter(customer_id=user_id)
+        print(f"Найдено заказов: {orders.count()}")
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        print("Ошибка при получении заказов:", e)
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
@@ -22,11 +38,68 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Order.objects.filter(customer=self.request.user)
         return super().get_queryset()
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_order_detail(request, order_id):
+    """
+    Получение одного заказа по ID (детальный просмотр).
+    """
+    order = get_object_or_404(Order, id=order_id)
+
+    # Только владелец заказа или админ может просматривать
+    if request.user != order.customer and not request.user.is_superuser:
+        return Response({'detail': 'Доступ запрещён.'}, status=status.HTTP_403_FORBIDDEN)
+
+    serializer = OrderSerializer(order)
+    return Response(serializer.data)
+
+class ReviewCreateView(generics.CreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+@login_required
+def checkout(request):
+    initial_data = {
+        'status': 'pending ',  # Начальный статус заказа, можно изменить при необходимости
+    }
+
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+
+        if form.is_valid():
+            order = form.save(commit=False)
+            order.customer = request.user
+            order.address = f"{request.user.country}, {request.user.region}, {request.user.city}, {request.user.street}, {request.user.house_number}"
+            order.phone = request.user.phone_number
+            order.save()
+
+            for flower_id, quantity in request.session.get('cart', {}).items():
+                flower = Flower.objects.get(id=flower_id)
+                OrderItem.objects.create(
+                    order=order,
+                    flower=flower,
+                    quantity=quantity,
+                    price=flower.price  # ✅ Добавили цену
+                )
+            request.session['cart'] = {}   # Очищаем корзину после заказа
+            return redirect('orders:order_history')
+    else:
+        form = OrderForm(initial=initial_data)
+
+    return render(request, 'orders/checkout.html', {'form': form})
+
+
 @login_required
 def repeat_order(request, order_id):
     old_order = get_object_or_404(Order, id=order_id, customer=request.user)
-
-    new_order = Order.objects.create(customer=request.user, status='new')
+    
+     # Создаем новый заказ
+    new_order = Order.objects.create(
+        customer=request.user,
+        address=old_order.address,
+        phone=old_order.phone#,
+        #status='pending'  # или другой начальный статус
+    )
 
     cart = request.session.get('cart', {})  # Загружаем текущую корзину
 
@@ -66,37 +139,6 @@ def add_to_cart(request, flower_id):
     return redirect('catalog:flower_catalog')
 
 
-@login_required
-def checkout(request):
-    initial_data = {
-        'status': 'В ожидании',  # Начальный статус заказа, можно изменить при необходимости
-    }
-
-    if request.method == 'POST':
-        form = OrderForm(request.POST)
-
-        if form.is_valid():
-            order = form.save(commit=False)
-            order.customer = request.user
-            order.address = f"{request.user.country}, {request.user.region}, {request.user.city}, {request.user.street}, {request.user.house_number}"
-            order.phone = request.user.phone_number
-            order.save()
-
-            for flower_id, quantity in request.session.get('cart', {}).items():
-                flower = Flower.objects.get(id=flower_id)
-                OrderItem.objects.create(
-                    order=order,
-                    flower=flower,
-                    quantity=quantity,
-                    price=flower.price  # ✅ Добавили цену
-                )
-            request.session['cart'] = {}   # Очищаем корзину после заказа
-            return redirect('orders:order_history')
-    else:
-        form = OrderForm(initial=initial_data)
-
-    return render(request, 'orders/checkout.html', {'form': form})
-
 def export_daily_report(request):
     today = now().date()
     report = DailyReport.objects.filter(date=today).first()
@@ -115,6 +157,11 @@ def export_daily_report(request):
     # Генерация Excel
     response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     response['Content-Disposition'] = f'attachment; filename="daily_report_{today}.xlsx"'
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False)
+
+    return response
+
 
 def changelist_view(self, request, extra_context=None):
     """Добавляем кнопки скачивания на главную страницу заказов."""

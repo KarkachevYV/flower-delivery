@@ -27,7 +27,8 @@ class CustomUser(AbstractUser):
     )
     role = models.CharField(max_length=30, choices=ROLE_CHOICES, default='user')
     last_visit = models.DateTimeField(auto_now=True)
-
+    telegram_id = models.CharField(max_length=20, unique=True, blank=True, null=True)
+    
     def __str__(self):
         return self.username
 

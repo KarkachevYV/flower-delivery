@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.timezone import now
 from accounts.models import CustomUser
 from catalog.models import Flower
+from bot_api.models import BotUser
 
 User = get_user_model()
 
@@ -57,3 +58,13 @@ class DailyReport(models.Model):
     class Meta:
         verbose_name = "Ежедневный отчёт"
         verbose_name_plural = "Ежедневные отчёты"    
+
+class Review(models.Model):
+    user = models.ForeignKey(BotUser, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(null=True, blank=True)
+    text = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'order')

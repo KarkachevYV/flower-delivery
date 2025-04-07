@@ -1,5 +1,4 @@
 # bot/handlers/start.py
-# bot/handlers/start.py
 from aiogram import Router, types, Dispatcher
 from aiogram.filters import Command
 import aiohttp

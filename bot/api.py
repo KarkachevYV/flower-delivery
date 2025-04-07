@@ -1,57 +1,41 @@
-import requests
-from config import DJANGO_API_URL
+# bot/api.py
+
 import aiohttp
+import logging
 
-API_BASE_URL = "http://127.0.0.1:8000/api/bot"
+API_URL = "http://127.0.0.1:8000/api/bot/users/"
+TIMEOUT = aiohttp.ClientTimeout(total=5)  # Максимум 5 секунд на запрос
 
-async def get_user(telegram_id: int):
-    """Получение данных о пользователе из API."""
-    url = f"{API_BASE_URL}/users/{telegram_id}/"
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
-                return await response.json()  # Вернет данные пользователя
-            return None  # Пользователь не найден
+# Настройка логирования
+logger = logging.getLogger(__name__)
 
-def create_order(user_id, items, total_price, address):
-    url = f"{DJANGO_API_URL}create_order/"
+
+async def get_user_data(telegram_id: int) -> dict | None:
+    url = f"{API_URL}{telegram_id}/"
+    try:
+        async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
+            async with session.get(url) as response:
+                if response.status == 200:
+                    return await response.json()
+                logger.warning(f"⚠️ Не удалось получить данные пользователя {telegram_id}: {response.status}")
+    except aiohttp.ClientError as e:
+        logger.error(f"🚫 Ошибка запроса при получении данных профиля: {e}")
+    return None
+
+
+async def update_phone_number(telegram_id: int, phone_number: str) -> bool:
+    url = f"{API_URL}{telegram_id}/"
     data = {
-        "user": user_id,
-        "items": items,
-        "total_price": total_price,
-        "address": address,
+        "telegram_id": telegram_id,
+        "phone_number": phone_number
     }
-    response = requests.post(url, json=data)
-    return response.json()
 
-def get_order_status(order_id):
-    url = f"{DJANGO_API_URL}order_status/{order_id}/"
-    response = requests.get(url)
-    return response.json()
-
-def get_user_info(user_id):
-    url = f"{DJANGO_API_URL}user_info/{user_id}/"
-    response = requests.get(url)
-    
-    if response.status_code == 200:
-        user = response.json()
-        full_address = (
-            f"{user.get('country', '')}, {user.get('region', '')}, {user.get('city', '')}, "
-            f"{user.get('street', '')} {user.get('house_number', '')}, {user.get('postal_code', '')}"
-        ).strip(", ")
-
-        return {
-            "username": user.get("username"),
-            "email": user.get("email"),
-            "phone": user.get("phone_number"),
-            "role": user.get("role"),
-            "address": full_address
-        }
-    
-    return {"error": "Пользователь не найден"}
-
-
-def get_analytics():
-    url = f"{DJANGO_API_URL}analytics/"
-    response = requests.get(url)
-    return response.json()
+    try:
+        async with aiohttp.ClientSession(timeout=TIMEOUT) as session:
+            async with session.put(url, json=data) as response:
+                if response.status == 200:
+                    return True
+                logger.warning(f"⚠️ Не удалось обновить телефон {telegram_id}: {response.status}")
+    except aiohttp.ClientError as e:
+        logger.error(f"🚫 Ошибка запроса при обновлении телефона: {e}")
+    return False
