@@ -13,18 +13,39 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True)
-    # total_price = serializers.SerializerMethodField()
-    
+    address = serializers.SerializerMethodField()  # Восстанавливаем поле
+    phone = serializers.CharField(source='customer.phone_number', read_only=True)
+    total_price = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
         fields = [
             'id',
-            'customer',  # для внутреннего API
+            'customer',
             'created_at',
             'status',
-            'items',            
-            # 'total_price'
+            'items',
+            'total_price',
+            'address',
+            'phone'
         ]
+
+    def get_address(self, obj):
+        # Если адрес явно указан — показываем его
+        if obj.address:
+            return obj.address
+
+        # Иначе собираем адрес из профиля пользователя
+        user = obj.customer
+        parts = [
+            user.postal_code,
+            user.country,
+            user.region,
+            user.city,
+            user.street,
+            user.house_number
+        ]
+        return ', '.join(filter(None, parts)) or 'Адрес не указан'
 
     def get_total_price(self, obj):
         try:
@@ -35,10 +56,24 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         items_data = validated_data.pop('items')
+        user = validated_data['customer']
+
+        # Если адрес не указан, заполняем из профиля
+        if not validated_data.get('address'):
+            validated_data['address'] = ', '.join(filter(None, [
+                user.postal_code,
+                user.country,
+                user.region,
+                user.city,
+                user.street,
+                user.house_number
+            ]))
+
         order = Order.objects.create(**validated_data)
         for item_data in items_data:
             OrderItem.objects.create(order=order, **item_data)
         return order
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:

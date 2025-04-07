@@ -24,7 +24,7 @@ async def show_order_detail(callback: CallbackQuery):
     url = f"{API_URL}/api/bot/orders/{order_id}/"
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
+        async with session.get(url, params={"telegram_id": callback.from_user.id}) as response:
             if response.status == 200:
                 order_data = await response.json()
 
@@ -58,7 +58,7 @@ async def handle_order_text(message: Message):
     url = f"{API_URL}/api/bot/orders/{order_id}/"
 
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
+        async with session.get(url, params={"telegram_id": message.from_user.id}) as response:
             if response.status == 200:
                 order_data = await response.json()
 
@@ -72,8 +72,8 @@ async def handle_order_text(message: Message):
                 )
                 for item in order_data['items']:
                     text += f"• {item['flower']} — {item['quantity']} шт. по {item['price']}₽\n"
-
                 text += f"\n💰 <b>Итого:</b> {order_data['total_price']}₽"
+                
                 await message.answer(text, parse_mode='HTML')
             else:
                 await message.answer("Не удалось получить детали заказа.")
