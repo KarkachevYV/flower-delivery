@@ -24,4 +24,3 @@ def generate_orders_keyboard(order_list):
         )
     return keyboard
 
-

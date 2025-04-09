@@ -168,4 +168,3 @@ def changelist_view(self, request, extra_context=None):
     extra_context = extra_context or {}
     extra_context["report_links"] = self.report_links(None)  # Передаём HTML-код кнопок
     return super().changelist_view(request, extra_context=extra_context)
-
